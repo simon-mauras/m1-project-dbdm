@@ -1,1 +1,1 @@
-# m1-project-dbdm
+# Projet M1 : Databases & Datamining

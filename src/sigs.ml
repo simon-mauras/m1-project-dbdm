@@ -1,0 +1,12 @@
+type parse_main = parse_schema * parse_schema * parse_tgds
+and parse_schema = parse_relation list
+and parse_relation = parse_name * parse_atts
+and parse_atts = parse_name list
+and parse_tgds = parse_tgd list
+and parse_tgd = parse_query * parse_query
+and parse_query = parse_atom list
+and parse_atom = parse_name * parse_args
+and parse_args = parse_value list
+and parse_value = Cst of parse_constant | Var of parse_name
+and parse_name = string
+and parse_constant = int

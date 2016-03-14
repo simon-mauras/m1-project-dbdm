@@ -1,1 +1,1 @@
-# Projet M1 : Databases & Datamining
+# M1 Project : Databases & Datamining

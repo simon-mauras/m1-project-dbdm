@@ -1,0 +1,15 @@
+SOURCE
+hasjob(Person, Field)
+teaches(Professor, Course)
+inField(Course, Field)
+get(Researcher, Grant)
+forGrant(Grant, Project)
+
+TARGET
+works(Person, Project)
+area(Project, Field)
+
+MAPPING
+hasjob($i, $f) -> works($i, $p), area($p, $f).
+teaches($i, $c), inField($c, $f) -> works($i, $p), area($p, $f).
+get($i, $g), forGrant($g, $p) -> works($i, $p).

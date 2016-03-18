@@ -1,3 +1,5 @@
+open Sigs
+
 let doc = []
 let usage_msg = "Usage: ./tinySQL input_file"
 
@@ -13,7 +15,13 @@ let main () =
       let input = open_in !arg_input in
       let lexbuf = Lexing.from_channel input in
       let source, target, mapping = Parser.main Lexer.main lexbuf in
-      let skolemized_mapping = Skolemizer.skolemize(mapping) in ()
+      (*prerr_endline "----------------------------";
+      prerr_endline (string_of_tgds mapping);*)
+      let skolemized_mapping = Skolemizer.skolemize(mapping) in
+      (*prerr_endline "----------------------------";
+      prerr_endline (string_of_tgds skolemized_mapping);*)
+      let sql = Sql_generator.generate (source, target, skolemized_mapping) in
+      List.iter (Printf.printf "%s;\n") sql
     with
       Sys_error s -> prerr_endline s (* no such file or directory, ... *)
   end

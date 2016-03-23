@@ -16,3 +16,4 @@ main:
 
 clean:
 	$(CC) -clean
+	rm test/*.db

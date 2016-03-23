@@ -1,29 +1,39 @@
 open Sigs
 
-let doc = []
-let usage_msg = "Usage: ./tinySQL input_file"
-
 let arg_input = ref ""
-let set_arg_input s = arg_input := s
+let arg_output = ref ""
+let arg_sqlite3 = ref ""
+
+let doc = [("-input", Arg.Set_string(arg_input), "Specify input file");
+           ("-output", Arg.Set_string(arg_output), "Specify output file");
+           ("-sqlite3", Arg.Set_string(arg_sqlite3), "Specify database file")]
+let usage_msg = "Usage: ./tinySQL <options>"
 
 let main () =
-  Arg.parse doc set_arg_input usage_msg;
-  if !arg_input = ""
-  then (prerr_string "No input file provided\n"; Arg.usage doc usage_msg)
-  else begin
-    try
-      let input = open_in !arg_input in
-      let lexbuf = Lexing.from_channel input in
-      let source, target, mapping = Parser.main Lexer.main lexbuf in
-      (*prerr_endline "----------------------------";
-      prerr_endline (string_of_tgds mapping);*)
-      let skolemized_mapping = Skolemizer.skolemize(mapping) in
-      (*prerr_endline "----------------------------";
-      prerr_endline (string_of_tgds skolemized_mapping);*)
-      let sql = Sql_generator.generate (source, target, skolemized_mapping) in
-      List.iter (Printf.printf "%s;\n") sql
-    with
-      Sys_error s -> prerr_endline s (* no such file or directory, ... *)
+  Arg.parse doc (fun _ -> ()) usage_msg;
+  
+  let input = if !arg_input = "" then stdin else open_in !arg_input in
+  let lexbuf = Lexing.from_channel input in
+  let source, target, mapping = Parser.main Lexer.main lexbuf in
+  if !arg_input <> "" then close_in(input);
+  
+  (*prerr_endline "----------------------------";
+  prerr_endline (string_of_tgds mapping);*)
+  let skolemized_mapping = Skolemizer.skolemize(mapping) in
+  (*prerr_endline "----------------------------";
+  prerr_endline (string_of_tgds skolemized_mapping);*)
+  
+  let sql = Sql_generator.generate (source, target, skolemized_mapping) in
+  if !arg_sqlite3 <> "" then begin
+    let db = Sqlite3.db_open !arg_sqlite3 in
+    let res = List.map (Sqlite3.exec db) sql in
+    let res_msgs = List.map Sqlite3.Rc.to_string res in
+    List.iter (Printf.eprintf "Execute query... %s\n") res_msgs;
+    ignore (Sqlite3.db_close db);
+  end else begin
+    let output = if !arg_output = "" then stdout else open_out !arg_output in
+    List.iter (Printf.fprintf output "%s;\n") sql;
+    if !arg_output <> "" then close_out(output);
   end
 
 let _ = main ()

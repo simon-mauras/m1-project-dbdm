@@ -27,10 +27,12 @@ let skolem m z ys =
   Skolem(m, z, StringSet.elements ys)
 
 let rec skolemize_tgd rule_id (q_source, q_target) =
+  (* Build the set of existencial vars *)
   let vars_source = get_vars_from_query q_source in
   let vars_target = get_vars_from_query q_target in
   let vars_shared = StringSet.inter vars_target vars_source in
   let vars_created = StringSet.diff vars_target vars_source in
+  (* Rename existential vars using a skolem function *)
   let add_map s = StringMap.add s (skolem rule_id s vars_shared) in
   let rename = StringSet.fold add_map vars_created StringMap.empty in
   (*StringMap.iter (fun x y -> Printf.eprintf "m%d %s -> %s\n" rule_id x
@@ -38,4 +40,5 @@ let rec skolemize_tgd rule_id (q_source, q_target) =
   (q_source, rename_vars_in_query rename q_target)
 
 let skolemize (tgds : parse_tgds) =
+  (* Skolemize every rule independently *)
   List.mapi skolemize_tgd tgds

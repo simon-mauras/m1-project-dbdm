@@ -5,6 +5,6 @@
 For debian-like systems:
 ```
 apt-get install opam
-opam install sqlite3
+opam install ocamlfind sqlite3
 make
 ```

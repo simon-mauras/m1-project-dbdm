@@ -1,0 +1,76 @@
+\documentclass[a4paper, 11pt]{article}
+
+\usepackage[utf8]{inputenc}
+
+\title{M1 Project - Databases}
+\author{Simon Mauras}
+\date{March 29,  2016}
+
+\begin{document}
+
+\maketitle
+
+\section*{Abstract}
+
+This report describes the implementation of a small SQL-based data exchange engine. It is part of the evaluation of a master's degree lecture on databases at ENS Lyon.
+
+\section{Implementation}
+
+Here is a quick description of the architecture of the implemented tool:
+\begin{figure}[h!]
+\centering
+\begin{tabular}{ll}
+File & Description \\
+\hline
+\verb|Makefile| & Makefile, run \verb|make| to install\\
+\verb|src/main.ml| & Handles I/O and calls to the other modules\\
+\verb|src/sigs.ml| & Definitions of types and useful functions\\
+\verb|src/lexer.mll| & OCamllex source file (lexer)\\
+\verb|src/parser.mly| & OCamlyacc source file (parser)\\
+\verb|src/skolemizer.ml| & Sanitize the mapping (remove existencial variables)\\
+\verb|src/sql_generator.ml| & Generate SQL queries from a mapping\\
+\end{tabular}
+\end{figure}
+
+The lexer and the parser are straighforward since a BNF grammar was given. However we choose to handle \verb|SOURCE|, \verb|TARGET| and \verb|MAPPING| as keywords, so they must not be used as names.
+
+\bigskip
+
+The skolemization is done with two passes, the first one to get the name of the existencial variables and the second one to rename them. We use sets an maps rename variables, and tail-recursion to speed-up the execution.
+
+\bigskip
+
+For the generation of SQL queries we had to handle carefully several points. If a source relation is used twice in one rule, then we must rename it. If a constant appears on the left hand side of a rule, then it is a constraint on the rows selected from the source.
+
+\section{Installation}
+
+Our data exchange tool has the following dependancies:
+\begin{itemize}
+	\item OCaml environment (\verb|ocamlbuild|, \verb|ocamlc|, \verb|ocamllex|, \verb|ocamlyacc|)
+	\item OPAM packages \verb|ocamlfind| and \verb|sqlite3|
+\end{itemize}
+
+\noindent For debian-like systems:
+\begin{verbatim}
+apt-get install opam
+opam install ocamlfind sqlite3
+make
+\end{verbatim}
+
+\section{Functionalities}
+
+Here is a small description of the functionalities of the implemented tool. By default the program \verb|DataExchangeSQL| reads the description of a mapping on the standard input and write a sequence of SQL queries on the standard output. The following options are available:
+
+\begin{figure}[h!]
+\centering
+\begin{tabular}{ll}
+Option & Description\\
+\hline
+\verb|-help| & Display the list of options \\
+\verb|-input <file>| & Read the description of the mapping from \verb|<file>|\\
+\verb|-output <file>| & Write the sequence of SQL queries in \verb|<file>|\\
+\verb|-sqlite3 <file>| & Execute the queries on the SQLite3 database \verb|<file>|
+\end{tabular}
+\end{figure}
+
+\end{document}

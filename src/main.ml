@@ -7,7 +7,7 @@ let arg_sqlite3 = ref ""
 let doc = [("-input", Arg.Set_string(arg_input), "Specify input file");
            ("-output", Arg.Set_string(arg_output), "Specify output file");
            ("-sqlite3", Arg.Set_string(arg_sqlite3), "Specify database file")]
-let usage_msg = "Usage: ./tinySQL <options>"
+let usage_msg = "Usage: ./DataExchangeSQL <options>"
 
 let main () =
   Arg.parse doc (fun _ -> ()) usage_msg;

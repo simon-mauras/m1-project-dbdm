@@ -12,7 +12,7 @@ database:
 
 main:
 	$(CC) $(CFLAGS) $(SRC)/$@.byte
-	mv $@.byte tinySQL
+	mv $@.byte DataExchangeSQL
 
 clean:
 	$(CC) -clean
